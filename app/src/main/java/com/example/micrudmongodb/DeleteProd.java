@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.gson.Gson;
@@ -17,7 +18,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
-public class UpdateProd extends AppCompatActivity {
+public class DeleteProd extends AppCompatActivity {
     Retrofit retrofit;
     servicesRetrofit miserviceretrofit;
     EditText edtnombre;
@@ -27,7 +28,7 @@ public class UpdateProd extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_update_prod);
+        setContentView(R.layout.activity_delete_prod);
         final String url = "http://gonzalesproducto.eu-4.evennode.com/";
         Gson gson = new GsonBuilder().setLenient().create();
         retrofit = new Retrofit.Builder()
@@ -40,19 +41,19 @@ public class UpdateProd extends AppCompatActivity {
         edtprecio = findViewById(R.id.edtprecio);
     }
 
-    public void updateproducto(View view) {
-        final Productos producto = new Productos(edtnombre.getText().toString(),
-                Integer.parseInt(edtprecio.getText().toString()));
-        Call<String> call = miserviceretrofit.updateproducto(miproducto.getId(), producto);
+    public void deleteproducto(View view) {
+        Call<String> call = miserviceretrofit.deleteproducto(miproducto.getId());
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
-                Log.e("updateproducto: ", "check:" + response.body());
+                Log.e("deleteproducto: ", "check:" + response.body());
+                Button miboton = findViewById(R.id.miborrar);
+                miboton.setEnabled(false);
             }
 
             @Override
             public void onFailure(Call<String> call, Throwable t) {
-                Log.e("updateproducto", t.toString());
+                Log.e("deleteproducto", t.toString());
             }
         });
     }
@@ -62,20 +63,20 @@ public class UpdateProd extends AppCompatActivity {
         call.enqueue(new Callback<Productos>() {
             @Override
             public void onResponse(Call<Productos> call, Response<Productos> response) {
-                Log.e("cargarproducto: ", "check:" + response.body().getName() + ", " +
-                        response.body().getPrice() + ", " + response.body().getId());
-                miproducto = new Productos(response.body().getName(), response.body().getPrice(), response.body().getId());
+                miproducto=new Productos(response.body().getName(),response.body().getPrice(),response.body().getId());
                 runOnUiThread(new Runnable() {
                                   @Override
                                   public void run() {
                                       edtprecio.setText(String.valueOf(miproducto.getPrice()));
+                                      Button miboton=findViewById(R.id.miborrar);
+                                      miboton.setEnabled(true);
                                   }
                               }
                 );
             }
             @Override
             public void onFailure(Call<Productos> call, Throwable t) {
-                Log.e("cargarproducto", t.toString());
+                Log.e("buscarprod",t.toString());
             }
         });
     }
